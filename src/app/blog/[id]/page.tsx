@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 
 interface BlogPost {
-  id: number;
+  _id: string;
   title: string;
   date: string;
   excerpt: string;
@@ -25,7 +25,7 @@ const BlogPost = () => {
     fetch('/api/blogs')
       .then(res => res.json())
       .then(data => {
-        const foundPost = data.find((p: BlogPost) => p.id === Number(params.id));
+        const foundPost = data.find((p: BlogPost) => p._id === params.id);
         setPost(foundPost);
         setLoading(false);
       })

@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 interface BlogPost {
-  id: number;
+  _id: string;
   title: string;
   date: string;
   excerpt: string;
@@ -96,7 +96,7 @@ const BlogPage = () => {
           {/* Update to use filteredPosts instead of blogPosts */}
           {filteredPosts.map((post) => (
             <article
-              key={post.id}
+              key={post._id}
               className="bg-gradient-to-br from-gray-900 via-gray-900 to-gray-800 rounded-2xl p-8 
                 transform hover:scale-105 transition-all duration-500 
                 border border-gray-800 hover:border-blue-500/50 
@@ -136,7 +136,7 @@ const BlogPage = () => {
               <p className="text-gray-400 mb-8 line-clamp-3 leading-relaxed">{post.excerpt}</p>
 
               <button
-                onClick={() => router.push(`/blog/${post.id}`)}
+                onClick={() => router.push(`/blog/${post._id}`)}
                 className="w-full px-6 py-3.5 bg-gradient-to-r from-blue-600 to-purple-600 
                 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 
                 transition-all duration-300 font-medium flex items-center justify-center group
