@@ -19,3 +19,34 @@ export async function DELETE(
     return NextResponse.json({ error: 'Failed to delete blog' }, { status: 500 });
   }
 }
+
+export async function PATCH(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
+  try {
+    await connectDB();
+    const { id } = params;
+    const body = await request.json();
+
+    const updatedBlog = await Blog.findByIdAndUpdate(
+      id,
+      { status: body.status },
+      { new: true }
+    );
+
+    if (!updatedBlog) {
+      return NextResponse.json(
+        { error: 'Blog not found' },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json(updatedBlog);
+  } catch (error) {
+    return NextResponse.json(
+      { error: 'Failed to update blog status' },
+      { status: 500 }
+    );
+  }
+}

@@ -88,6 +88,32 @@ export default function AdminBlogs() {
     }
   };
 
+  const handleStatusChange = async (id: string, newStatus: string) => {
+    try {
+      const response = await fetch(`/api/blogs/${id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: newStatus }),
+      });
+
+      if (response.ok) {
+        toast.success(`Status updated to ${newStatus}`, {
+          className: 'bg-gray-800 text-white border border-gray-700',
+          duration: 3000,
+          icon: '✅'
+        });
+        fetchBlogs();
+      }
+    } catch (error) {
+      toast.error('Error updating status', {
+        className: 'bg-gray-800 text-white border border-gray-700'
+      });
+      console.error('Error updating blog status:', error);
+    }
+  };
+
   if (loading) {
     return <div className="text-center text-gray-400">Loading...</div>;
   }
@@ -129,13 +155,19 @@ export default function AdminBlogs() {
                   </span>
                 </td>
                 <td className="px-6 py-4">
-                  <span className={`px-3 py-1 rounded-full text-sm ${
-                    blog.status === 'published'
-                      ? 'bg-green-500/10 text-green-400'
-                      : 'bg-yellow-500/10 text-yellow-400'
-                  }`}>
-                    {blog.status}
-                  </span>
+                  <select
+                    value={blog.status}
+                    onChange={(e) => handleStatusChange(blog._id, e.target.value)}
+                    className={`px-3 py-1.5 rounded-lg text-sm transition-colors cursor-pointer
+                      ${blog.status === 'published' 
+                        ? 'bg-green-500/10 text-green-400 border border-green-500/20' 
+                        : 'bg-yellow-500/10 text-yellow-400 border border-yellow-500/20'
+                      }
+                      hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500/50`}
+                  >
+                    <option value="published" className="bg-gray-900 text-green-400">Published</option>
+                    <option value="draft" className="bg-gray-900 text-yellow-400">Draft</option>
+                  </select>
                 </td>
                 <td className="px-6 py-4">
                   <button 
