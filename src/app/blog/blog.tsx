@@ -1,40 +1,42 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+
+interface BlogPost {
+  id: number;
+  title: string;
+  date: string;
+  excerpt: string;
+  author: string;
+  category: string;
+  readTime: string;
+  content: string;
+  status?: string;
+}
 
 const BlogPage = () => {
   const router = useRouter();
-  const blogPosts = [
-    {
-      id: 1,
-      title: "Getting Started with React",
-      date: "2024-03-20",
-      excerpt: "Learn the basics of React and how to build your first application...",
-      author: "John Doe",
-      category: "React",
-      readTime: "5 min read",
-      content: `React is a powerful JavaScript library for building user interfaces. In this comprehensive guide, we'll walk through the fundamentals of React and create your first application from scratch.
+  const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [loading, setLoading] = useState(true);
 
-We'll cover essential concepts like components, props, state management, and hooks. By the end of this tutorial, you'll have a solid foundation in React development.`
-    },
-    {
-      id: 2,
-      title: "Mastering Tailwind CSS",
-      date: "2024-03-18",
-      excerpt: "Discover the power of utility-first CSS framework...",
-      author: "Jane Smith",
-      category: "CSS",
-      readTime: "4 min read",
-      content: `Tailwind CSS has revolutionized the way we style web applications. This guide explores advanced techniques, best practices, and optimization strategies for building beautiful user interfaces with Tailwind CSS.
-
-Learn how to customize your design system, create reusable components, and leverage Tailwind's powerful features to their full potential.`
-    },
-    // Add more blog posts as needed
-  ];
-
-  // Add search state
-  const [searchQuery, setSearchQuery] = React.useState('');
+  useEffect(() => {
+    fetch('/api/blogs')
+      .then(res => res.json())
+      .then(data => {
+        // Only show published posts on the public blog page
+        const publishedPosts = data.filter((post: BlogPost) => 
+          post.status === 'published'
+        );
+        setBlogPosts(publishedPosts);
+        setLoading(false);
+      })
+      .catch(error => {
+        console.error('Error fetching blogs:', error);
+        setLoading(false);
+      });
+  }, []);
 
   // Filter blog posts based on search query
   const filteredPosts = blogPosts.filter(post =>
@@ -42,6 +44,14 @@ Learn how to customize your design system, create reusable components, and lever
     post.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
     post.author.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-gray-950 via-black to-gray-950 text-white flex items-center justify-center">
+        <div className="text-2xl">Loading...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-950 via-black to-gray-950 text-white">
@@ -81,12 +91,12 @@ Learn how to customize your design system, create reusable components, and lever
             </div>
           </div>
         </div>
-        
+
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
           {/* Update to use filteredPosts instead of blogPosts */}
           {filteredPosts.map((post) => (
-            <article 
-              key={post.id} 
+            <article
+              key={post.id}
               className="bg-gradient-to-br from-gray-900 via-gray-900 to-gray-800 rounded-2xl p-8 
                 transform hover:scale-105 transition-all duration-500 
                 border border-gray-800 hover:border-blue-500/50 
@@ -94,7 +104,7 @@ Learn how to customize your design system, create reusable components, and lever
                 relative overflow-hidden group cursor-pointer"
             >
               <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-purple-500/10 to-pink-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              
+
               <div className="flex justify-between items-center mb-6">
                 <span className="px-4 py-1.5 bg-blue-500/10 text-blue-300 rounded-full text-sm font-medium
                   border border-blue-500/20 shadow-sm shadow-blue-500/10">
@@ -107,11 +117,11 @@ Learn how to customize your design system, create reusable components, and lever
                   {post.readTime}
                 </span>
               </div>
-              
+
               <h2 className="text-2xl font-bold mb-4 group-hover:text-blue-400 transition-colors duration-300">
                 {post.title}
               </h2>
-              
+
               <div className="flex items-center mb-4 text-sm text-gray-400">
                 <span className="font-medium">{post.date}</span>
                 <span className="mx-2">•</span>
@@ -122,10 +132,10 @@ Learn how to customize your design system, create reusable components, and lever
                   {post.author}
                 </span>
               </div>
-              
+
               <p className="text-gray-400 mb-8 line-clamp-3 leading-relaxed">{post.excerpt}</p>
-              
-              <button 
+
+              <button
                 onClick={() => router.push(`/blog/${post.id}`)}
                 className="w-full px-6 py-3.5 bg-gradient-to-r from-blue-600 to-purple-600 
                 text-white rounded-xl hover:from-blue-700 hover:to-purple-700 
@@ -133,10 +143,10 @@ Learn how to customize your design system, create reusable components, and lever
                 shadow-lg hover:shadow-blue-600/30 relative overflow-hidden">
                 <span className="relative z-10 flex items-center">
                   Read More
-                  <svg 
-                    className="w-5 h-5 ml-2 transform group-hover:translate-x-1 transition-transform" 
-                    fill="none" 
-                    stroke="currentColor" 
+                  <svg
+                    className="w-5 h-5 ml-2 transform group-hover:translate-x-1 transition-transform"
+                    fill="none"
+                    stroke="currentColor"
                     viewBox="0 0 24 24"
                   >
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />

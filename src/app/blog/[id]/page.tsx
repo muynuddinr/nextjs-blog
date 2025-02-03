@@ -1,42 +1,47 @@
 'use client';
 
-import React from 'react';
-import { useRouter } from 'next/navigation';
-import { useParams } from 'next/navigation';
+import React, { useEffect, useState } from 'react';
+import { useRouter, useParams } from 'next/navigation';
+
+interface BlogPost {
+  id: number;
+  title: string;
+  date: string;
+  excerpt: string;
+  author: string;
+  category: string;
+  readTime: string;
+  content: string;
+  status?: string;
+}
 
 const BlogPost = () => {
   const router = useRouter();
   const params = useParams();
-  
-  // This would typically come from an API or database
-  const blogPosts = [
-    {
-      id: 1,
-      title: "Getting Started with React",
-      date: "2024-03-20",
-      excerpt: "Learn the basics of React and how to build your first application...",
-      author: "John Doe",
-      category: "React",
-      readTime: "5 min read",
-      content: `React is a powerful JavaScript library for building user interfaces. In this comprehensive guide, we'll walk through the fundamentals of React and create your first application from scratch.
+  const [post, setPost] = useState<BlogPost | null>(null);
+  const [loading, setLoading] = useState(true);
 
-We'll cover essential concepts like components, props, state management, and hooks. By the end of this tutorial, you'll have a solid foundation in React development.`
-    },
-    {
-      id: 2,
-      title: "Mastering Tailwind CSS",
-      date: "2024-03-18",
-      excerpt: "Discover the power of utility-first CSS framework...",
-      author: "Jane Smith",
-      category: "CSS",
-      readTime: "4 min read",
-      content: `Tailwind CSS has revolutionized the way we style web applications. This guide explores advanced techniques, best practices, and optimization strategies for building beautiful user interfaces with Tailwind CSS.
+  useEffect(() => {
+    fetch('/api/blogs')
+      .then(res => res.json())
+      .then(data => {
+        const foundPost = data.find((p: BlogPost) => p.id === Number(params.id));
+        setPost(foundPost);
+        setLoading(false);
+      })
+      .catch(error => {
+        console.error('Error fetching blog post:', error);
+        setLoading(false);
+      });
+  }, [params.id]);
 
-Learn how to customize your design system, create reusable components, and leverage Tailwind's powerful features to their full potential.`
-    },
-  ];
-
-  const post = blogPosts.find(post => post.id === Number(params.id));
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-gray-950 via-black to-gray-950 text-white flex items-center justify-center">
+        <div className="text-2xl">Loading...</div>
+      </div>
+    );
+  }
 
   if (!post) {
     return (
